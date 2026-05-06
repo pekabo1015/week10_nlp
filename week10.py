@@ -30,68 +30,19 @@ GAUGE_COLORS = {
 }
 
 PIE_COLORS = {
-    "positive": "#22d3ee",
-    "neutral": "#c4b5fd",
-    "negative": "#fb7185",
+    "positive": "#6dbe9a",
+    "neutral": "#9eb0e8",
+    "negative": "#e5989b",
 }
 
-MODULE3_DASH_CSS = """
+# 整体偏轻松：暖白渐变背景、略圆角与柔和阴影（与 Streamlit 默认组件协调）
+LIGHT_APP_CSS = """
 <style>
-    .m3-shell {
-        background: linear-gradient(155deg, #070b14 0%, #0f172a 42%, #0c1222 100%);
-        border: 1px solid rgba(56, 189, 248, 0.22);
-        border-radius: 18px;
-        padding: 1.35rem 1.5rem 1.5rem;
-        margin: 0.5rem 0 1.25rem 0;
-        box-shadow:
-            0 0 0 1px rgba(15, 23, 42, 0.8),
-            0 20px 50px rgba(0, 0, 0, 0.45),
-            0 0 80px rgba(34, 211, 238, 0.06);
+    [data-testid="stAppViewContainer"] {
+        background: linear-gradient(180deg, #fffdf9 0%, #f6f3ee 55%, #f3f1ec 100%);
     }
-    .m3-kicker {
-        color: #38bdf8;
-        font-size: 0.72rem;
-        letter-spacing: 0.28em;
-        text-transform: uppercase;
-        margin: 0 0 0.35rem 0;
-        font-weight: 600;
-    }
-    .m3-title {
-        color: #f8fafc;
-        font-size: 1.45rem;
-        font-weight: 700;
-        margin: 0 0 0.25rem 0;
-        text-shadow: 0 0 24px rgba(56, 189, 248, 0.35);
-    }
-    .m3-sub {
-        color: #94a3b8;
-        font-size: 0.88rem;
-        margin: 0;
-        line-height: 1.45;
-    }
-    .m3-metric-deck {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.75rem;
-        margin-top: 1rem;
-    }
-    .m3-metric {
-        flex: 1 1 140px;
-        background: rgba(15, 23, 42, 0.65);
-        border: 1px solid rgba(148, 163, 184, 0.18);
-        border-radius: 12px;
-        padding: 0.75rem 1rem;
-        min-width: 120px;
-    }
-    .m3-metric-label { color: #94a3b8; font-size: 0.75rem; margin-bottom: 0.2rem; }
-    .m3-metric-val {
-        font-size: 1.65rem;
-        font-weight: 800;
-        font-variant-numeric: tabular-nums;
-    }
-    .m3-pos .m3-metric-val { color: #22d3ee; text-shadow: 0 0 20px rgba(34, 211, 238, 0.4); }
-    .m3-neu .m3-metric-val { color: #c4b5fd; text-shadow: 0 0 20px rgba(196, 181, 253, 0.35); }
-    .m3-neg .m3-metric-val { color: #fb7185; text-shadow: 0 0 20px rgba(251, 113, 133, 0.4); }
+    [data-testid="stHeader"] { background: rgba(255, 253, 249, 0.85); }
+    .block-container { padding-top: 1.25rem; }
 </style>
 """
 
@@ -251,7 +202,7 @@ def build_sentiment_pie_figure(counts: dict[str, int], total: int) -> go.Figure:
     if not values:
         labels = ["无数据"]
         values = [1]
-        colors = ["#334155"]
+        colors = ["#c4bfb6"]
 
     fig = go.Figure(
         data=[
@@ -261,11 +212,11 @@ def build_sentiment_pie_figure(counts: dict[str, int], total: int) -> go.Figure:
                 hole=0.58,
                 sort=False,
                 direction="clockwise",
-                marker=dict(colors=colors, line=dict(color="rgba(15,23,42,0.95)", width=2)),
+                marker=dict(colors=colors, line=dict(color="#ffffff", width=2)),
                 texttemplate="<b>%{label}</b><br>%{percent}",
                 textposition="outside",
-                textfont=dict(size=13, color="#e2e8f0"),
-                insidetextfont=dict(color="#0f172a", size=14),
+                textfont=dict(size=13, color="#3d3a36"),
+                insidetextfont=dict(color="#2c2825", size=14),
                 hovertemplate="%{label}<br>条数: %{value}<br>占比: %{percent}<extra></extra>",
             )
         ]
@@ -273,7 +224,7 @@ def build_sentiment_pie_figure(counts: dict[str, int], total: int) -> go.Figure:
     fig.update_layout(
         title=dict(
             text=f"口碑结构 · N = {total}",
-            font=dict(size=18, color="#f1f5f9", family="Microsoft YaHei, sans-serif"),
+            font=dict(size=18, color="#4a453f", family="Microsoft YaHei, sans-serif"),
             x=0.5,
             xanchor="center",
         ),
@@ -286,15 +237,15 @@ def build_sentiment_pie_figure(counts: dict[str, int], total: int) -> go.Figure:
             y=-0.12,
             x=0.5,
             xanchor="center",
-            font=dict(color="#cbd5e1", size=12),
+            font=dict(color="#5c5850", size=12),
         ),
         margin=dict(t=56, b=80, l=24, r=24),
         annotations=[
             dict(
-                text="Sentiment<br>Mix",
+                text="口碑<br>占比",
                 x=0.5,
                 y=0.5,
-                font=dict(size=14, color="#94a3b8"),
+                font=dict(size=14, color="#8a847a"),
                 showarrow=False,
             )
         ],
@@ -302,65 +253,30 @@ def build_sentiment_pie_figure(counts: dict[str, int], total: int) -> go.Figure:
     return fig
 
 
-def module3_metrics_block_html(counts: dict[str, int]) -> str:
-    p, neu, neg = counts.get("positive", 0), counts.get("neutral", 0), counts.get("negative", 0)
-    return f"""
-    <div class="m3-shell" style="margin-top:0.25rem;">
-        <p class="m3-kicker">Aggregates</p>
-        <p class="m3-title" style="font-size:1.15rem;">三类情感计数</p>
-        <div class="m3-metric-deck">
-            <div class="m3-metric m3-pos">
-                <div class="m3-metric-label">Positive · 积极</div>
-                <div class="m3-metric-val">{p}</div>
-            </div>
-            <div class="m3-metric m3-neu">
-                <div class="m3-metric-label">Neutral · 中性</div>
-                <div class="m3-metric-val">{neu}</div>
-            </div>
-            <div class="m3-metric m3-neg">
-                <div class="m3-metric-label">Negative · 消极</div>
-                <div class="m3-metric-val">{neg}</div>
-            </div>
-        </div>
-    </div>
-    """
-
-
 def render_tab_batch_dashboard() -> None:
-    st.markdown(MODULE3_DASH_CSS, unsafe_allow_html=True)
+    st.subheader("批量情感分析看板")
 
-    st.markdown(
-        """
-        <div class="m3-shell">
-            <p class="m3-kicker">Opinion Mining · Dashboard</p>
-            <p class="m3-title">批量情感分析看板</p>
-            <p class="m3-sub">模拟电商评论语料 → 批量推理 → 聚合统计 · 观察从「单句」到「语料库」的宏观口碑结构</p>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
-    st.markdown(
-        """
-        将 **单条评论的情感分类** 扩展到 **一批评论（小型语料库）**，即可进入**意见挖掘（Opinion Mining）**的雏形：
-        不再只看一句话的正负，而是看**整体分布**——好评是否占主导、负面是否形成「长尾」、中性是否暗示「无感/观望」。
-        下方按钮会随机生成 **10–15 条** 含好、中、差评的模拟数据，并一次性送入同一模型批量推理。
-        """
-    )
-
-    with st.expander("从「单句分析」到「大规模语料」：如何支撑商业决策？", expanded=False):
+    with st.container(border=True):
+        st.caption("阅读说明")
         st.markdown(
             """
-            1. **产品改进（VoC）**：批量统计后，可结合**主题模型/关键词**（本演示以情感聚合为主）定位「负面是否集中在质量、物流、售后」等维度，为迭代排期提供依据。
-            2. **危机预警**：负面占比或**高置信消极**条数在短期内陡升，可作为舆情告警信号，触发公关或客服预案；需配合时间序列与渠道分层（本模块为静态快照演示）。
-            3. **营销与定位**：积极占比高但中性偏高，可能意味着「认可但不兴奋」——适合挖掘差异化卖点；反之消极抬头需先修复体验再投放。
-            4. **方法局限**：模拟数据量小、模型为轻量级多语言蒸馏，**宏观比例仅供参考**；真实业务需更大样本、抽样偏差控制、以及隐式讽刺等难例的人工审计。
-
-            **观察建议**：多次点击生成，看随机批次下三类计数与饼图如何变化——体会 **「分布」比「单点预测」** 更接近管理层报表语言。
+            将 **单条评论的情感分类** 扩展到 **一批评论（小型语料库）**，即可进入**意见挖掘（Opinion Mining）**的雏形：
+            不再只看一句话的正负，而是看**整体分布**——好评是否占主导、负面是否形成「长尾」、中性是否暗示「无感/观望」。
+            下方按钮会随机生成 **10–15 条** 含好、中、差评的模拟数据，并一次性送入同一模型批量推理。
             """
         )
+        with st.expander("从「单句分析」到「大规模语料」：如何支撑商业决策？", expanded=False):
+            st.markdown(
+                """
+                1. **产品改进（VoC）**：批量统计后，可结合**主题模型/关键词**（本演示以情感聚合为主）定位「负面是否集中在质量、物流、售后」等维度，为迭代排期提供依据。
+                2. **危机预警**：负面占比或**高置信消极**条数在短期内陡升，可作为舆情告警信号，触发公关或客服预案；需配合时间序列与渠道分层（本模块为静态快照演示）。
+                3. **营销与定位**：积极占比高但中性偏高，可能意味着「认可但不兴奋」——适合挖掘差异化卖点；反之消极抬头需先修复体验再投放。
+                4. **方法局限**：模拟数据量小、模型为轻量级多语言蒸馏，**宏观比例仅供参考**；真实业务需更大样本、抽样偏差控制、以及隐式讽刺等难例的人工审计。
 
-    render_hf_hub_troubleshoot_expander()
+                **观察建议**：多次点击生成，看随机批次下三类计数与饼图如何变化——体会 **「分布」比「单点预测」** 更接近管理层报表语言。
+                """
+            )
+        render_hf_hub_troubleshoot_expander()
 
     if st.button("生成测试舆情数据", type="primary", use_container_width=True, key="btn_gen_batch"):
         st.session_state["m3_reviews"] = generate_mock_corpus()
@@ -401,22 +317,25 @@ def render_tab_batch_dashboard() -> None:
         st.caption(f"注：有 {stray} 条标签落在预期三分类之外，已并入「中性」计数以便展示。")
     total = len(reviews)
 
-    st.markdown(module3_metrics_block_html(counts), unsafe_allow_html=True)
-
-    pie = build_sentiment_pie_figure(counts, total)
-    st.plotly_chart(pie, use_container_width=True, key="tab3_pie")
-
-    st.markdown("**逐条预测明细**（原文 · 预测标签 · 模型置信度）")
-    rows = []
-    for text, (_raw, k, conf) in zip(reviews, preds):
-        rows.append(
-            {
-                "评论原文": text,
-                "预测": LABEL_ZH.get(k, k),
-                "置信度": f"{conf:.2%}",
-            }
-        )
-    st.dataframe(rows, use_container_width=True, hide_index=True)
+    with st.container(border=True):
+        st.markdown("##### 分析结果")
+        mc1, mc2, mc3 = st.columns(3)
+        mc1.metric("Positive · 积极", counts["positive"])
+        mc2.metric("Neutral · 中性", counts["neutral"])
+        mc3.metric("Negative · 消极", counts["negative"])
+        pie = build_sentiment_pie_figure(counts, total)
+        st.plotly_chart(pie, use_container_width=True, key="tab3_pie")
+        st.markdown("**逐条预测明细**（原文 · 预测标签 · 模型置信度）")
+        rows = []
+        for text, (_raw, k, conf) in zip(reviews, preds):
+            rows.append(
+                {
+                    "评论原文": text,
+                    "预测": LABEL_ZH.get(k, k),
+                    "置信度": f"{conf:.2%}",
+                }
+            )
+        st.dataframe(rows, use_container_width=True, hide_index=True)
 
 
 def build_gauge_figure(confidence_pct: float, pred_key: str) -> go.Figure:
@@ -502,11 +421,24 @@ def render_sentiment_results(scores_sorted: list[dict[str, Any]], *, key_prefix:
 
 def render_tab_single_text() -> None:
     st.subheader("单文本情感极性分析")
-    st.caption(
-        "使用轻量多语言模型 `lxyuan/distilbert-base-multilingual-cased-sentiments-student`，"
-        "输出三分类：积极 / 中性 / 消极。"
-    )
-    render_hf_hub_troubleshoot_expander()
+    with st.container(border=True):
+        st.caption("阅读说明")
+        st.markdown(
+            "使用轻量多语言模型 `lxyuan/distilbert-base-multilingual-cased-sentiments-student`，"
+            "输出三分类：积极 / 中性 / 消极。"
+        )
+        with st.expander("为什么在工程里要看「置信度 / 概率」，而不只看分类结果？", expanded=False):
+            st.markdown(
+                """
+                1. **决策与阈值**：业务上常把「积极但仅 52%」与「积极且 98%」区别对待；没有概率就无法做分级策略（如仅对高置信消极进线客服）。
+                2. **校准与可解释**：Softmax 输出反映模型在当前标签空间下的相对把握；低置信往往对应**措辞模糊、反讽、混合情感**或**分布外文本**，需要人工复核而非自动执行强动作。
+                3. **错误分析**：若模型常给出错误标签却伴随**异常高的置信度**，说明可能存在过拟合、数据偏差或对抗样本，需要重点排查。
+                4. **监控与漂移**：线上可统计置信度分布；若整体置信度持续下降或某类文本置信异常，可能提示数据分布变化或模型退化。
+
+                **小实验建议**：对比「五星好评式短句」与「整体满意但夹带一句抱怨」的长评——后者常出现**类别不变但置信度下降**或**中性概率上升**，这正是概率信息的价值。
+                """
+            )
+        render_hf_hub_troubleshoot_expander()
 
     default_hint = (
         "在此输入一段中文商品评论。\n"
@@ -517,18 +449,6 @@ def render_tab_single_text() -> None:
     col_run, _ = st.columns([1, 3])
     with col_run:
         analyze = st.button("分析情感", type="primary", use_container_width=True)
-
-    with st.expander("为什么在工程里要看「置信度 / 概率」，而不只看分类结果？", expanded=False):
-        st.markdown(
-            """
-            1. **决策与阈值**：业务上常把「积极但仅 52%」与「积极且 98%」区别对待；没有概率就无法做分级策略（如仅对高置信消极进线客服）。
-            2. **校准与可解释**：Softmax 输出反映模型在当前标签空间下的相对把握；低置信往往对应**措辞模糊、反讽、混合情感**或**分布外文本**，需要人工复核而非自动执行强动作。
-            3. **错误分析**：若模型常给出错误标签却伴随**异常高的置信度**，说明可能存在过拟合、数据偏差或对抗样本，需要重点排查。
-            4. **监控与漂移**：线上可统计置信度分布；若整体置信度持续下降或某类文本置信异常，可能提示数据分布变化或模型退化。
-
-            **小实验建议**：对比「五星好评式短句」与「整体满意但夹带一句抱怨」的长评——后者常出现**类别不变但置信度下降**或**中性概率上升**，这正是概率信息的价值。
-            """
-        )
 
     if not analyze:
         return
@@ -549,37 +469,40 @@ def render_tab_single_text() -> None:
         st.error("模型未返回有效结果，请稍后重试。")
         return
 
-    render_sentiment_results(scores_sorted, key_prefix="tab1")
+    with st.container(border=True):
+        st.markdown("##### 分析结果")
+        render_sentiment_results(scores_sorted, key_prefix="tab1")
 
 
 def render_tab_explicit_implicit() -> None:
     st.subheader("显式 vs 隐式情感表达（对比实验）")
-    st.caption("同一模型、两次推理：观察「褒贬词明显」与「客观陈述但含态度」时，标签与置信度如何变化。")
-
-    st.markdown(
-        """
-        **什么是「显式情感」？**  
-        文本里带有**明显的褒贬或情绪词**，情感倾向直接写在字面上。例如：「太棒了」「非常满意」「烂透了」「坑爹」。模型往往更容易从词汇表面模式判断极性。
-
-        **什么是「隐式情感」？**  
-        表面上是**事实、现象或客观描述**，不一定出现「好/坏」字眼，但结合常识能推断说话人的态度。例如：「手机玩游戏半小时就没电了」——未说「差」，却常表达续航不满；又如「包装皱了，里面还好」可能混合中性事实与轻微负面。  
-        这类句子考验模型是否具备**常识推理、领域知识**以及是否见过足够多样的标注样本。
-        """
-    )
-
-    with st.expander("小型深度学习模型，能「听懂」隐式负面吗？", expanded=False):
+    with st.container(border=True):
+        st.caption("阅读说明")
+        st.markdown(
+            "同一模型、两次推理：观察「褒贬词明显」与「客观陈述但含态度」时，标签与置信度如何变化。"
+        )
         st.markdown(
             """
-            1. **训练目标**：多数情感分类器学习的是「字面线索 ↔ 标签」的统计关联；**显式情感词**是最强信号，隐式态度往往更依赖上下文与常识，小模型容量有限时容易「抓表面」。
-            2. **中性陷阱**：客观陈述句在语法上像「说明文」，模型若缺乏深层语义，可能给出 **Neutral 偏高**——并非「读不懂汉字」，而是**未把事实与负面后果绑定**。
-            3. **置信度的信号作用**：隐式句若被判为负面但**概率仅略高于中性**，通常说明模型「不太确定」；若判错却**置信度很高**，则提示数据偏差或过拟合某些表面模式（值得记录为 bad case）。
-            4. **改进方向（工程视角）**：领域数据微调、Aspect-Based 情感、引入更大模型或知识增强、以及对低置信/隐式类文本做**人机协同审核**。
+            **什么是「显式情感」？**  
+            文本里带有**明显的褒贬或情绪词**，情感倾向直接写在字面上。例如：「太棒了」「非常满意」「烂透了」「坑爹」。模型往往更容易从词汇表面模式判断极性。
 
-            **建议对比**：左框写带强烈褒义词的短评，右框写你举的「半小时没电」类客观描述——看 **预测标签是否一致**、**消极/中性概率差**、以及 **置信度是否明显下降**。
+            **什么是「隐式情感」？**  
+            表面上是**事实、现象或客观描述**，不一定出现「好/坏」字眼，但结合常识能推断说话人的态度。例如：「手机玩游戏半小时就没电了」——未说「差」，却常表达续航不满；又如「包装皱了，里面还好」可能混合中性事实与轻微负面。  
+            这类句子考验模型是否具备**常识推理、领域知识**以及是否见过足够多样的标注样本。
             """
         )
+        with st.expander("小型深度学习模型，能「听懂」隐式负面吗？", expanded=False):
+            st.markdown(
+                """
+                1. **训练目标**：多数情感分类器学习的是「字面线索 ↔ 标签」的统计关联；**显式情感词**是最强信号，隐式态度往往更依赖上下文与常识，小模型容量有限时容易「抓表面」。
+                2. **中性陷阱**：客观陈述句在语法上像「说明文」，模型若缺乏深层语义，可能给出 **Neutral 偏高**——并非「读不懂汉字」，而是**未把事实与负面后果绑定**。
+                3. **置信度的信号作用**：隐式句若被判为负面但**概率仅略高于中性**，通常说明模型「不太确定」；若判错却**置信度很高**，则提示数据偏差或过拟合某些表面模式（值得记录为 bad case）。
+                4. **改进方向（工程视角）**：领域数据微调、Aspect-Based 情感、引入更大模型或知识增强、以及对低置信/隐式类文本做**人机协同审核**。
 
-    render_hf_hub_troubleshoot_expander()
+                **建议对比**：左框写带强烈褒义词的短评，右框写你举的「半小时没电」类客观描述——看 **预测标签是否一致**、**消极/中性概率差**、以及 **置信度是否明显下降**。
+                """
+            )
+        render_hf_hub_troubleshoot_expander()
 
     c1, c2 = st.columns(2)
     with c1:
@@ -618,13 +541,15 @@ def render_tab_explicit_implicit() -> None:
             return
 
         st.markdown("---")
-        rc1, rc2 = st.columns(2)
-        with rc1:
-            st.markdown("##### 显式情感评价 · 模型输出")
-            render_sentiment_results(scores_ex, key_prefix="tab2_explicit")
-        with rc2:
-            st.markdown("##### 隐式客观描述 · 模型输出")
-            render_sentiment_results(scores_im, key_prefix="tab2_implicit")
+        with st.container(border=True):
+            st.markdown("##### 分析结果")
+            rc1, rc2 = st.columns(2)
+            with rc1:
+                st.markdown("###### 显式情感评价 · 模型输出")
+                render_sentiment_results(scores_ex, key_prefix="tab2_explicit")
+            with rc2:
+                st.markdown("###### 隐式客观描述 · 模型输出")
+                render_sentiment_results(scores_im, key_prefix="tab2_implicit")
 
 
 def main() -> None:
@@ -633,8 +558,8 @@ def main() -> None:
         page_icon="📊",
         layout="wide",
     )
+    st.markdown(LIGHT_APP_CSS, unsafe_allow_html=True)
     st.title("电商 / 社交媒体 · 舆情分析工具")
-    st.markdown("分步搭建中：**板块一、二、三** 已全部接入。")
 
     tab1, tab2, tab3 = st.tabs(
         [
